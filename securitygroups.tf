@@ -38,12 +38,12 @@ resource "aws_security_group" "ec2-sg-1" {
     security_groups = [aws_security_group.alb-sg-1.id]
   }
 
-  # ingress {
-  #     from_port = "22"
-  #     to_port = "22"
-  #     protocol = "tcp"
-  #     cidr_blocks = [ aws_security_group.alb-sg-1.id ]
-  # }
+  ingress {
+      from_port = "22"
+      to_port = "22"
+      protocol = "tcp"
+      security_groups = [ aws_security_group.public-ec2-sg-1.id ]
+  }
 
   egress {
     from_port   = 0
@@ -70,12 +70,12 @@ resource "aws_security_group" "db-sg-1" {
     security_groups = [aws_security_group.ec2-sg-1.id]
   }
 
-  ingress {
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [aws_security_group.ec2-sg-1.id]
-  }
+  # ingress {
+  #   from_port       = 22
+  #   to_port         = 22
+  #   protocol        = "tcp"
+  #   security_groups = [aws_security_group.ec2-sg-1.id]
+  # }
 
   egress {
     from_port   = 0
