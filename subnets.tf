@@ -62,3 +62,15 @@ resource "aws_subnet" "private-subnet-2b" {
   }
 
 }
+
+resource "aws_db_subnet_group" "web-app-db-subnet-grp" {
+  name        = "web-app-db-subnet-grp"
+  description = "private subnets for web application database"
+
+  subnet_ids = [aws_subnet.private-subnet-2a.id, aws_subnet.private-subnet-2b.id]
+
+  tags = {
+    Name = "web-app.db-subnet-grp"
+  }
+}
+
