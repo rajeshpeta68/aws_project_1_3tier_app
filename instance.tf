@@ -8,7 +8,7 @@ resource "aws_instance" "bastion-instance" {
   security_groups             = [aws_security_group.public-ec2-sg-1.id]
   associate_public_ip_address = true
   key_name                    = "base"
-  subnet_id = each.value
+  subnet_id                   = each.value
 
   tags = {
     Name = "bastion-instance-${each.key}"

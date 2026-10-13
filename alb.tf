@@ -1,19 +1,33 @@
+locals {
+  web_servers = {
+    "1" = {
+      name      = "private-web-server-1"
+      subnet_id = aws_subnet.private-subnet-1a.id
+    }
+    "2" = {
+      name      = "private-web-server-2"
+      subnet_id = aws_subnet.private-subnet-1b.id
+    }
+  }
+}
+
 resource "aws_launch_template" "private-ec2-httpd-template" {
+  for_each               = local.web_servers
   vpc_security_group_ids = [aws_security_group.ec2-sg-1.id]
   image_id               = data.aws_ami.amazon_linux.id
-  name_prefix            = "web-server-"
+  name_prefix            = "${each.value.name}-"
   instance_type          = "t3.micro"
 
 
   user_data = base64encode(templatefile("${path.module}/scripts/install_httpd.sh", {
-    server_name = "web-server-1"
+    server_name = each.value.name
   }))
 
   tag_specifications {
     resource_type = "instance"
 
     tags = {
-      Name        = "web-server-1"
+      Name        = each.value.name
       Environment = "dev"
     }
   }
@@ -74,17 +88,18 @@ resource "aws_lb_listener" "alb-listener" {
 }
 
 resource "aws_autoscaling_group" "web-asg" {
-  name                = "web-asg"
-  min_size            = 2
-  max_size            = 4
-  desired_capacity    = 2
-  vpc_zone_identifier = [aws_subnet.private-subnet-1a.id, aws_subnet.private-subnet-1b.id]
+  for_each            = local.web_servers
+  name                = each.value.name
+  min_size            = 1
+  max_size            = 1
+  desired_capacity    = 1
+  vpc_zone_identifier = [each.value.subnet_id]
 
   target_group_arns         = [aws_lb_target_group.private-ec2-httpd-tg.arn]
   health_check_type         = "ELB"
   health_check_grace_period = 180
   launch_template {
-    id      = aws_launch_template.private-ec2-httpd-template.id
+    id      = aws_launch_template.private-ec2-httpd-template[each.key].id
     version = "$Latest"
   }
 

@@ -39,10 +39,10 @@ resource "aws_security_group" "ec2-sg-1" {
   }
 
   ingress {
-      from_port = "22"
-      to_port = "22"
-      protocol = "tcp"
-      security_groups = [ aws_security_group.public-ec2-sg-1.id ]
+    from_port       = "22"
+    to_port         = "22"
+    protocol        = "tcp"
+    security_groups = [aws_security_group.public-ec2-sg-1.id]
   }
 
   egress {
