@@ -17,6 +17,7 @@ resource "aws_launch_template" "private-ec2-httpd-template" {
   image_id               = data.aws_ami.amazon_linux.id
   name_prefix            = "${each.value.name}-"
   instance_type          = "t3.micro"
+  key_name               = "base"
 
 
   user_data = base64encode(templatefile("${path.module}/scripts/install_httpd.sh", {
@@ -91,7 +92,7 @@ resource "aws_autoscaling_group" "web-asg" {
   for_each            = local.web_servers
   name                = each.value.name
   min_size            = 1
-  max_size            = 1
+  max_size            = 2
   desired_capacity    = 1
   vpc_zone_identifier = [each.value.subnet_id]
 

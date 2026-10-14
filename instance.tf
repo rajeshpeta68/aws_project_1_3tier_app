@@ -10,6 +10,16 @@ resource "aws_instance" "bastion-instance" {
   key_name                    = "base"
   subnet_id                   = each.value
 
+  user_data = <<-EOF
+    #!/bin/bash
+    install -d -m 700 -o ec2-user -g ec2-user /home/ec2-user/.ssh
+    cat > /home/ec2-user/.ssh/base.pem <<'KEY'
+    ${file("${path.module}/base.pem")}
+    KEY
+    chown ec2-user:ec2-user /home/ec2-user/.ssh/base.pem
+    chmod 400 /home/ec2-user/.ssh/base.pem
+  EOF
+
   tags = {
     Name = "bastion-instance-${each.key}"
   }
